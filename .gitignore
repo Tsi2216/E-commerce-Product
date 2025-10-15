@@ -1,0 +1,25 @@
+# --- Critical Security and Local Files ---
+
+# 1. Environment Variables (Crucial for security)
+.env
+
+# 2. Local Database (Crucial for stability/security)
+db.sqlite3
+*.sqlite3-journal
+
+# --- Build, Static, and Media Files ---
+
+# 3. Static/Media Uploads (These should be handled by the server, not Git)
+/media/
+/staticfiles/
+
+# --- Standard Python/Django Ignored Files ---
+
+# Byte-compiled files
+__pycache__/
+*.pyc
+
+# Temporary files created by the OS/IDE
+*~
+*.log
+.DS_Store
