@@ -1,3 +1,5 @@
+# accounts/models.py (Corrected and Completed Code)
+
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
 from django.utils import timezone
@@ -27,6 +29,10 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
+        
+        # NOTE: You must ensure 'is_seller' is set to False for the superuser 
+        # unless you specifically want the superuser to also be a seller.
+        extra_fields.setdefault('is_seller', False) 
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
@@ -47,6 +53,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
 
+    # 📌 FIX: Added the missing 'is_seller' field that was causing the error
+    is_seller = models.BooleanField(default=False) 
+
     objects = UserManager()
 
     # Use email as the unique identifier for authentication
@@ -55,3 +64,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    # --- Optional Helper Methods (Good Practice) ---
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}".strip()
+
+    def get_short_name(self):
+        return self.first_name or self.email
