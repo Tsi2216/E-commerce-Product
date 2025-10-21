@@ -3,8 +3,8 @@
 from pathlib import Path
 from datetime import timedelta
 import os
-from decouple import config 
-import dj_database_url 
+from decouple import config
+import dj_database_url
 
 # ---------------------------------------------------------------------
 # BASE DIRECTORIES
@@ -14,14 +14,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ---------------------------------------------------------------------
 # SECURITY
 # ---------------------------------------------------------------------
-# FIX: Use environment variable for SECRET_KEY
-SECRET_KEY = config('SECRET_KEY') 
-
-# FIX: Set DEBUG based on environment variable (False for production)
+SECRET_KEY = config('SECRET_KEY', default='fallback-secret-key')
 DEBUG = config('DEBUG', default=False, cast=bool)
-
-# FIX: ALLOWED_HOSTS must be updated for Render
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.onrender.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'e-commerce-product-gtr9.onrender.com']
 
 # ---------------------------------------------------------------------
 # APPLICATIONS
@@ -33,16 +28,15 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    
-    'whitenoise.runserver_nostatic', # For development static serving
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
 
-    # Third-party apps
+    # Third-party
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
     'django_filters',
-    
+
     # Local apps
     'accounts',
     'products',
@@ -54,10 +48,7 @@ INSTALLED_APPS = [
 # ---------------------------------------------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    
-    # FIX: Add WhiteNoise middleware right after SecurityMiddleware
-    'whitenoise.middleware.WhiteNoiseMiddleware', 
-    
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -91,25 +82,22 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # ---------------------------------------------------------------------
-# DATABASE (FIXED FOR LOCAL/PRODUCTION ROBUSTNESS)
+# DATABASE
 # ---------------------------------------------------------------------
 DATABASES = {
-    # This single config uses DATABASE_URL if present (Render)
-    # or falls back to the local SQLite file if not found (Local Development)
-    'default': config(
-        'DATABASE_URL', 
-        default='sqlite:///{}'.format(BASE_DIR / 'db.sqlite3'), 
-        cast=dj_database_url.parse
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600
     )
 }
 
 # ---------------------------------------------------------------------
-# AUTHENTICATION (unchanged)
+# AUTH USER MODEL
 # ---------------------------------------------------------------------
 AUTH_USER_MODEL = 'accounts.User'
 
 # ---------------------------------------------------------------------
-# PASSWORD VALIDATION (unchanged)
+# PASSWORD VALIDATION
 # ---------------------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -119,7 +107,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ---------------------------------------------------------------------
-# INTERNATIONALIZATION (unchanged)
+# INTERNATIONALIZATION
 # ---------------------------------------------------------------------
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
@@ -127,17 +115,17 @@ USE_I18N = True
 USE_TZ = True
 
 # ---------------------------------------------------------------------
-# STATIC & MEDIA FILES (REQUIRED FOR DEPLOYMENT)
+# STATIC & MEDIA FILES
 # ---------------------------------------------------------------------
-STATIC_URL = 'static/'
-# FIX: STATIC_ROOT must be set so collectstatic works in production
-STATIC_ROOT = BASE_DIR / 'staticfiles' 
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # ---------------------------------------------------------------------
-# DJANGO REST FRAMEWORK CONFIG (unchanged)
+# REST FRAMEWORK
 # ---------------------------------------------------------------------
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -156,7 +144,7 @@ REST_FRAMEWORK = {
 }
 
 # ---------------------------------------------------------------------
-# SIMPLE JWT CONFIG (unchanged)
+# SIMPLE JWT
 # ---------------------------------------------------------------------
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
@@ -167,11 +155,11 @@ SIMPLE_JWT = {
 }
 
 # ---------------------------------------------------------------------
-# CORS CONFIG (unchanged)
+# CORS
 # ---------------------------------------------------------------------
 CORS_ALLOW_ALL_ORIGINS = True
 
 # ---------------------------------------------------------------------
-# DEFAULT FIELD CONFIG (unchanged)
+# DEFAULT AUTO FIELD
 # ---------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
